@@ -1,0 +1,181 @@
+// Google Font-Face Mixin
+@mixin googlefont($fonts...) {
+  $url: "//fonts.googleapis.com/css?family=";
+  $nb: 0;
+
+  @each $font-name in $fonts {
+    $nb: $nb + 1;
+    $nb-word: 0;
+
+    @each $word in $font-name {
+      $nb-word: $nb-word + 1;
+      $url: $url + $word;
+
+      @if $nb-word < length($font-name) {
+        $url: $url + "+";
+      }
+    }
+
+    @if $nb < length($fonts) {
+       $url: $url + "|";
+    }
+  }
+
+  @import url(#{$url});
+}
+
+// 讓 Footer 不管內容高度 永遠在最下方
+@mixin sticky-footer($footer-height, $root-selector: unquote("#root"), $root-footer-selector: unquote("#root_footer"), $footer-selector: unquote("#footer")) {
+  html, body {
+    height: 100%;
+  }
+  #{$root-selector} {
+    clear: both;
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin-bottom: -$footer-height;
+    #{$root-footer-selector} {
+      height: $footer-height;
+    }
+  }
+  #{$footer-selector} {
+    clear: both;
+    position: relative;
+    height: auto;
+  }
+}
+
+// 用法 @extend %clearfix
+%clearfix {
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
+%link-clear {
+  // color: #666;
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+@mixin placeholder($color) {
+  &::-webkit-input-placeholder {
+    color: $color;
+  }
+  &::-moz-placeholder {
+    color: $color;
+  }
+  &:-ms-input-placeholder {
+    color: $color;
+  }
+  &:-moz-placeholder {
+    color: $color;
+  }
+}
+
+// 支援 IE 的透明度
+@mixin opacity($opacity) {
+  @if $opacity == 1 {
+    filter: unquote("progid:DXImageTransform.Microsoft.Alpha(enabled=false)");
+  }
+  @else {
+    filter: unquote("progid:DXImageTransform.Microsoft.Alpha(Opacity=#{round($opacity * 100)})");
+  }
+  opacity: $opacity;
+}
+
+// 快速調用 transition
+@mixin transition($transition-property, $transition-time: 1s, $method: ease) {
+  -webkit-transition: $transition-property $transition-time $method;
+  -moz-transition: $transition-property $transition-time $method;
+  -ms-transition: $transition-property $transition-time $method;
+  -o-transition: $transition-property $transition-time $method;
+  transition: $transition-property $transition-time $method;
+}
+
+// 跨瀏覽器 transform
+@mixin transform($val...) {
+  -webkit-transform: $val;
+  -moz-transform: $val;
+  -ms-transform: $val;
+  transform: $val;
+}
+
+// 浮動置中 +centerMe(both) => both | top | left | right | bottom
+@mixin centerMe($pos: both) {
+  position: absolute;
+  @if $pos == both {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  @else if $pos == top {
+    left: 50%;
+    transform: translate(-50%, 0);
+  }
+  @else if $pos == left {
+    top: 50%;
+    transform: translate(0, -50%);
+  }
+  @else if $pos == right {
+    top: 50%;
+    right: 0;
+    transform: translate(0, -50%);
+  }
+  @else if $pos == bottom {
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+  }
+}
+
+// 跨瀏覽器圓角
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+  border-radius: $radius;
+  background-clip: padding-box;  /* stops bg color from leaking outside the border: */
+}
+
+// // font-size rem to px 讓不支援 rem 的瀏覽器能吃 px
+// // +font-size(13)
+// @mixin font-size($sizeValue: 1.6) {
+//   font-size: ($sizeValue * 10) + px;
+//   font-size: $sizeValue + rem;
+// }
+
+// // rem-fallback 自動計算回傳 rem
+// // +rem-fallback(margin, 10, 20, 30, 40);
+// @function strip-unit($num) {
+//   @return $num / ($num * 0 + 1);
+// }
+
+// @mixin rem-fallback($property, $values...) {
+//   $max: length($values);
+//   $pxValues: '';
+//   $remValues: '';
+
+//   @for $i from 1 through $max {
+//     $value: strip-unit(nth($values, $i));
+//     $pxValues: #{$pxValues + $value*10}px;
+
+//     @if $i < $max {
+//       $pxValues: #{$pxValues + " "};
+//     }
+//   }
+
+//   @for $i from 1 through $max {
+//     $value: strip-unit(nth($values, $i));
+//     $remValues: #{$remValues + $value}rem;
+
+//     @if $i < $max {
+//       $remValues: #{$remValues + " "};
+//     }
+//   }
+
+//   #{$property}: $pxValues;
+//   #{$property}: $remValues;
+// }
