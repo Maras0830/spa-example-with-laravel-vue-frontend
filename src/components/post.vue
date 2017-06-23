@@ -1,33 +1,55 @@
 <template lang="pug">
 .post-list
-  post-item(v-for="post, index in getPostsList", :post="post", :index="index" :commentCounts="post.comments.data.length")
+  .post-wrap
+    .post(@click="commentsToggle = !commentsToggle")
+      //- a.title(:href="post.url")
+      .title
+        div {{post.title}}
+      .content-wrap
+        img.avatar(:src="'https://randomuser.me/api/portraits/women/' + (index + 56) + '.jpg'")
+        .content-right
+          .name {{ post.author.data.name }}
+            span.time {{ post.time_ago}}
+          //- a.email(href="post.author.data.email")  Email
+          .content {{ post.content }}
+      .extra-btn
+        .heart.function-btn.fa.fa-heart Heart
+        .comment.function-btn.fa.fa-comment Comment ( {{ commentCounts }} )
+        .reply.function-btn.fa.fa-reply Share
+    .comments-wrap(:class="{ 'hide' : commentsToggle }")
+      .comments(v-for="comment, index in post.comments.data")
+        //- h3 {{ comment.title }}
+        .content-wrap
+          img.avatar(v-if="index % 2 === 0", :src="'https://randomuser.me/api/portraits/men/' + (index + 20) + '.jpg'")
+          img.avatar(v-else, :src="'https://randomuser.me/api/portraits/women/' + (index + 17) + '.jpg'")
+          .content-right
+            .name {{ comment.author.data.name }}
+              span.time  {{ comment.time_ago }}
+            .content  {{ comment.content }}
+            .extra-btn
+              .heart.function-btn Heart
+              .comment.function-btn Comment
+        //- .sub_comment(v-if="comment.sub_comments.data.length > 0", v-for="subComment in comment.sub_comments.data") {{ subComment.title }}
+          .content {{ subComment.content }}
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
-import postItem from './post'
-
 export default {
-  name: 'hello',
-  components: {
-    'post-item': postItem
+  props: {
+    post: {
+      type: [Object, Array]
+    },
+    index: {
+      type: Number
+    },
+    commentCounts: {
+      type: Number
+    }
   },
   data () {
     return {
+      commentsToggle: true
     }
-  },
-  computed: mapGetters([
-    'getPostsList'
-  ]),
-  methods: Object.assign(
-    mapActions([
-      'fetchPostsList'
-    ]),
-    {
-    }
-  ),
-  created () {
-    this.fetchPostsList()
   }
 }
 </script>
@@ -91,10 +113,16 @@ export default {
   .comments-wrap
     padding: 12px 16px 16px 32px
     background-color: #f5f5f5
+    // max-height: 1000px
+    // opacity: 1
+    +transition(opacity, 0.3s, ease)
+    // +transition(max-height, 0.3s, ease)
     &.hide
       overflow: hidden
-      height: 0
+      max-height: 0
+      // visibility: hidden
       padding: 0
+      // opacity: 0
     .comments
       margin-bottom: 20px
       .content-wrap
