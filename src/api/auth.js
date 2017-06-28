@@ -1,7 +1,13 @@
 const Promise = window.Promise || require('promise')
 const request = require('superagent-promise')(require('superagent'), Promise)
 const API_END_POINT = process.env.API_END_POINT
-const POSTS_LIST = API_END_POINT + '/posts'
+const AUTH_USER_URL = API_END_POINT + '/login'
+const AUTH_ME_URL = API_END_POINT + '/me'
+const generateAuthResponse = (res) => {
+  const response = JSON.parse(res.text)
+
+  return Promise.resolve(response)
+}
 const generateResponse = (res) => {
   const response = JSON.parse(res.text)
 
@@ -24,14 +30,14 @@ const generateErrorResponse = (err) => {
 
 export default {
   API_END_POINT: API_END_POINT,
-  get (params) {
-    let req = request.get(POSTS_LIST).query(params)
+  post (email, password) {
+    let req = request.post(AUTH_USER_URL).send({'email': email, 'password': password})
     return req
       .end()
-      .then(generateResponse, generateErrorResponse)
+      .then(generateAuthResponse, generateErrorResponse)
   },
-  postReply (accessToken, content, postId) {
-    let req = request.post(POSTS_LIST + '/' + postId + '/comments').send({ title: content, content: content }).set('Authorization', 'Bearer ' + accessToken).set('Accept', 'application/json')
+  get (accessToken) {
+    let req = request.get(AUTH_ME_URL).set('Authorization', 'Bearer ' + accessToken).set('Accept', 'application/json')
     return req
       .end()
       .then(generateResponse, generateErrorResponse)

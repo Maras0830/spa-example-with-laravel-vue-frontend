@@ -1,47 +1,60 @@
 <template lang="pug">
-.post-list
-  <!-- div Login Status: {{isUserLogin}} -->
-  button(v-show='isUserLogin', @click.stop="logout()", style="position: fixed; right: 0; top: 0;") logout
-  post-item(v-for="post, index in getPostsList", :post="post", :index="index" :commentCounts="post.comments.data.length")
+.login-form
+    h1 Log In
+    form(method='POST' v-on:submit.prevent="submitLogin({email,password})")
+      div
+        label(for='email') Email
+        input.form-control(type='text' v-model="email" id='email' placeholder='email' name='email')
+      div
+        label(for='password') Password
+        input.form-control(type='password' v-model="password" id='password' placeholder='password' name='password')
+      button.btn.btn-primary(type='submit') Log in 
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import postItem from './post'
 
 export default {
-  name: 'hello',
+  name: 'login',
   beforeRouteEnter (to, from, next) {
     next(vm => {
-      vm.getAuthUser(localStorage.getItem('spaUserToken'))
+      if (typeof localStorage.getItem('spaUserToken') === 'string') {
+        vm.getAuthUser(localStorage.getItem('spaUserToken')).then(function () {
+          vm.$router.push('/')
+        }, function () {
+          localStorage.clear()
+          alert('請重新登入')
+        })
+      }
     })
-  },
-  components: {
-    'post-item': postItem
   },
   data () {
     return {
+      'email': 'maraschen@codingweb.tw',
+      'password': '123456'
     }
   },
   computed: mapGetters([
     'getPostsList',
     'isUserLogin'
   ]),
+  watch: {
+    isUserLogin: function () {
+      this.getAuthUser(localStorage.getItem('spaUserToken')).then(function (e) {
+        console.log(this)
+        window.location.href = '/'
+      })
+      console.log('isLogin func')
+    }
+  },
   methods: Object.assign(
     mapActions([
-      'fetchPostsList',
+      'submitLogin',
       'getAuthUser'
     ]),
     {
-      logout () {
-        window.localStorage.clear()
-        window.location = '/login'
-      }
     }
-  ),
-  created () {
-    this.fetchPostsList()
-  }
+  )
 }
 </script>
 

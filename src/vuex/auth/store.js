@@ -3,16 +3,12 @@ import * as getters from './getters'
 import * as types from '../mutation-types'
 
 const state = {
-  list: {},
-  replay_list: {}
+  user: {}
 }
 
 const mutations = {
-  [types.POSTS_LIST] (state, data) {
-    state.list = data
-  },
-  [types.POSTS_REPLY_LIST] (state, data) {
-    state.replay_list = data
+  [types.AUTH_USER] (state, data) {
+    state.user = data
   }
 }
 

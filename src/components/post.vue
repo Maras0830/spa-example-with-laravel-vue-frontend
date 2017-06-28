@@ -3,8 +3,6 @@
   .post-wrap
     .post(@click="commentsToggle = !commentsToggle")
       //- a.title(:href="post.url")
-      .title
-        div {{post.title}}
       .content-wrap
         img.avatar(:src="'https://randomuser.me/api/portraits/women/' + (index + 56) + '.jpg'")
         .content-right
@@ -28,12 +26,29 @@
             .content  {{ comment.content }}
             .extra-btn
               .heart.function-btn Heart
-              .comment.function-btn Comment
+              //- .comment.function-btn Comment
+    .comments-wrap(:class="{ sending : replyCacheSubmited }")
+      .comments(v-show="replyCacheSubmited")
+        .content-wrap
+          img.avatar(v-if="index % 2 === 0", :src="'https://randomuser.me/api/portraits/men/' + (index + 20) + '.jpg'")
+          img.avatar(v-else, :src="'https://randomuser.me/api/portraits/women/' + (index + 17) + '.jpg'")
+          .content-right
+            .name Author
+              span.time just now
+            .content  {{ replyCache }}
+            .extra-btn
+              .heart.function-btn Heart
+              //- .comment.function-btn Comment
+      .reply-wrap
+        textarea.reply-textarea(@keyup.enter="submitReply(post.id)", v-model="replyCache",:disabled="replyCacheSubmited") 13
+        button.send-btn(@click.stop="submitReply(post.id)", :disabled="replyCacheSubmited") send
         //- .sub_comment(v-if="comment.sub_comments.data.length > 0", v-for="subComment in comment.sub_comments.data") {{ subComment.title }}
           .content {{ subComment.content }}
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+
 export default {
   props: {
     post: {
@@ -48,7 +63,30 @@ export default {
   },
   data () {
     return {
-      commentsToggle: true
+      commentsToggle: true,
+      replyCache: '',
+      replyCacheSubmited: false
+    }
+  },
+  methods: {
+    ...mapActions([
+      'postReply',
+      'fetchPostsList'
+    ]),
+    submitReply (postId) {
+      this.replyCacheSubmited = true
+      var pamars = {
+        accessToken: localStorage.getItem('spaUserToken'),
+        content: this.replyCache,
+        postId: postId
+      }
+      this.postReply(pamars).then((res) => {
+        this.fetchPostsList().then((res) => {
+          this.replyCache = ''
+          this.replyCacheSubmited = false
+        })
+      })
+      // alert('its Work!')
     }
   }
 }
@@ -101,6 +139,7 @@ export default {
       @extend %clearfix
       border-top: 1px solid #ddd
       padding-top: 8px
+      font-size: 13px
       .function-btn
         margin-right: 24px
         cursor: pointer
@@ -163,4 +202,34 @@ export default {
             padding-right: 3px
           &:hover
             color: #333
+    &.sending
+      background-color: #ddd
+.reply-wrap
+  @extend %clearfix
+  .reply-textarea
+    display: block
+    width: calc(100% - 32px)
+    resize: none
+    border: 1px solid #ddd
+    padding: 8px
+    font-size: 14px
+    &:disabled
+      display: none
+    &:focus
+      outline: none
+    & + .send-btn
+      margin:
+        top: 8px
+        right: 16px
+      border: 1px solid #ddd
+      +border-radius(3px)
+      background-color: #fff
+      font-size: 12px
+      text-transform: uppercase
+      padding: 6px
+      float: right
+      color: #555
+      cursor: pointer
+      &:disabled
+        display: none
 </style>
