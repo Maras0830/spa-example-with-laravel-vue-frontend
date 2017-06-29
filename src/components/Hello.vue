@@ -13,7 +13,9 @@ export default {
   name: 'hello',
   beforeRouteEnter (to, from, next) {
     next(vm => {
-      vm.getAuthUser(localStorage.getItem('spaUserToken'))
+      vm.getAuthUser(localStorage.getItem('spaUserToken')).then(function () {}, function () {
+        vm.$router.push('/login')
+      })
     })
   },
   components: {
